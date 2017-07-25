@@ -42,8 +42,8 @@ public class PopulateDatabase {
             employee.setDepartment(department);
             department.getEmployees().add(employee);
 
-            em.persist(employee);
-            em.persist(department);
+//            em.persist(employee);
+//            em.persist(department);
 
         }
 

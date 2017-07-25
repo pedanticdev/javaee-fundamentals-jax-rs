@@ -1,6 +1,8 @@
 package com.pedantic.entities;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -9,6 +11,7 @@ import java.math.BigDecimal;
 @Entity
 @NamedQuery(name = Employee.FIND_ALL_EMPLOYEESS, query = "SELECT e FROM Employee e ORDER BY e.name")
 public class Employee implements Serializable {
+
     public static final String FIND_ALL_EMPLOYEESS = "findAllEmployees";
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -19,9 +22,13 @@ public class Employee implements Serializable {
     @Column(nullable = false)
     private Long version;
 
-
+    @NotNull(message = "Employee name cannot be left empty")
+    @Size(min = 3, max = 20, message = "Employee name must be between 3 and 20 characters")
     private String name;
+    @NotNull(message = "Salary cannot be left empty")
     private BigDecimal salary;
+    @NotNull
+    @Size(min = 10, max = 10, message = "Social security number must be 10 characters long")
     private String ssn;
 
     @ManyToOne
