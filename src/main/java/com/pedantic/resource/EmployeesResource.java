@@ -1,13 +1,15 @@
 package com.pedantic.resource;
 
 import com.pedantic.entities.Employee;
+import com.pedantic.entities.EmployeeBeanParam;
 import com.pedantic.services.PersistenceService;
 import com.pedantic.services.QueryService;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
+import java.net.URI;
 import java.util.List;
 
 @Path("/employees")
@@ -19,17 +21,27 @@ public class EmployeesResource {
     private QueryService queryService;
     @Inject
     private PersistenceService persistenceService;
+    @Context
+    private UriInfo uriInfo;
+
+    @Context
+    private HttpHeaders httpHeaders;
 
     @GET
     public List<Employee> getEmployees() {
-      
+
         return queryService.getEmployees();
     }
 
     @POST
     public Response saveEmployee(@Valid Employee employee) {
         persistenceService.saveEmployee(employee);
-        return Response.ok(employee).build();
+
+        NewCookie cookie = new NewCookie("employeeId", employee.getId().toString());
+        NewCookie cookie1 = new NewCookie("employeeName", employee.getName());
+
+        return Response.created(URI.create(uriInfo.getAbsolutePath() + "/" + employee.getId())).
+                cookie(cookie).cookie(cookie1).build();
     }
 
     @GET
@@ -39,6 +51,7 @@ public class EmployeesResource {
         if (employee == null) {
             return Response.status(Response.Status.NO_CONTENT).build();
         }
+
         return Response.ok(queryService.getEmployeeById(id)).build();
     }
 
@@ -46,5 +59,15 @@ public class EmployeesResource {
     @Path("{id}")
     public Employee getEmployeeById(@PathParam("id") Long id) {
         return queryService.getEmployeeById(id);
+    }
+
+    @POST
+    @Path("form")
+    public void createEmployeeBeanParam(@BeanParam EmployeeBeanParam beanParam) {
+        System.out.println(beanParam.getName());
+        System.out.println(beanParam.getSalary());
+        System.out.println(beanParam.getSsn());
+        System.out.println(beanParam.getMyHeader());
+        System.out.println(beanParam.getId());
     }
 }

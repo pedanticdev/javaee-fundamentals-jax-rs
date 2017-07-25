@@ -1,10 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Start Page</title>
+        <title>Test @FormParam</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <form method="post" action="http://localhost:8080/jax-rs/api/v1/employees">
+            <P>
+                Employee Name: <input type="text" name="name"><br/>
+                Salary: <input type="text" name="salary"><br/>
+                Social Securit Number: <input type="text" name="ssn"><br/>
+                <input type="submit" value="Send">
+            </P>
+        </form>
     </body>
 </html>
