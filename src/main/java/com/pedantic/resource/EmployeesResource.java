@@ -56,6 +56,13 @@ public class EmployeesResource {
     }
 
     @GET
+    public Response getEmployeeQueryParam(@QueryParam("id") Long id) {
+        Employee employee = queryService.getEmployeeById(id);
+
+        return Response.ok().entity(employee).build();
+    }
+
+    @GET
     @Path("{id}")
     public Employee getEmployeeById(@PathParam("id") Long id) {
         return queryService.getEmployeeById(id);
