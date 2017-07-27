@@ -5,7 +5,9 @@
  */
 package com.pedantic.resource;
 
+import com.pedantic.entities.EmployeeBeanParam;
 import java.math.BigDecimal;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.FormParam;
@@ -34,5 +36,12 @@ public class FormResource {
         System.out.println(ssn);
         System.out.println(myHeader);
         System.out.println(id);
+    }
+
+    @POST
+    @Path("bean")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void testBeanParam(@BeanParam EmployeeBeanParam beanParam) {
+        System.out.println(beanParam.getName());
     }
 }

@@ -47,7 +47,7 @@ public class EmployeesResource {
     @GET
     @Path("/find/{id}")
     public Response getEmployeesResponse(@PathParam("id") Long id) {
-        Employee employee = getEmployeeById(id);
+        Employee employee = queryService.getEmployeeById(id);
         if (employee == null) {
             return Response.status(Response.Status.NO_CONTENT).build();
         }
@@ -55,12 +55,12 @@ public class EmployeesResource {
         return Response.ok(queryService.getEmployeeById(id)).build();
     }
 
-    @GET
-    public Response getEmployeeQueryParam(@QueryParam("id") Long id) {
-        Employee employee = queryService.getEmployeeById(id);
-
-        return Response.ok().entity(employee).build();
-    }
+//    @GET
+//    public Response getEmployeeQueryParam(@QueryParam("id") Long id) {
+//        Employee employee = queryService.getEmployeeById(id);
+//
+//        return Response.ok().entity(employee).build();
+//    }
 
     @GET
     @Path("{id}")
