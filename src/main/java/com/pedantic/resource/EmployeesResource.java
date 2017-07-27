@@ -4,6 +4,7 @@ import com.pedantic.entities.Employee;
 import com.pedantic.entities.EmployeeBeanParam;
 import com.pedantic.services.PersistenceService;
 import com.pedantic.services.QueryService;
+import java.math.BigDecimal;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -32,7 +33,6 @@ public class EmployeesResource {
 
         return queryService.getEmployees();
     }
-
     @POST
     public Response saveEmployee(@Valid Employee employee) {
         persistenceService.saveEmployee(employee);
@@ -68,13 +68,5 @@ public class EmployeesResource {
         return queryService.getEmployeeById(id);
     }
 
-    @POST
-    @Path("form")
-    public void createEmployeeBeanParam(@BeanParam EmployeeBeanParam beanParam) {
-        System.out.println(beanParam.getName());
-        System.out.println(beanParam.getSalary());
-        System.out.println(beanParam.getSsn());
-        System.out.println(beanParam.getMyHeader());
-        System.out.println(beanParam.getId());
-    }
+   
 }
