@@ -11,9 +11,10 @@ import java.math.BigDecimal;
 
 public class JaxRSClient {
 
-    private final static Client CLIENT = ClientBuilder.newClient();
+    private final Client CLIENT = ClientBuilder.newClient();
 
-    public static void main(String[] args) {
+
+    public void testClient() {
         WebTarget target = CLIENT.target("http://localhost:8080/jax-rs/api/v1/employees/");
 
         Employee employee = new Employee();
@@ -29,5 +30,6 @@ public class JaxRSClient {
         System.out.println(employee1.getName());
 
         CLIENT.close();
+
     }
 }
