@@ -43,5 +43,8 @@ public class FormResource {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void testBeanParam(@BeanParam EmployeeBeanParam beanParam) {
         System.out.println(beanParam.getName());
+        System.out.println(beanParam.getSsn());
+        System.out.println(beanParam.getSalary());
+        System.out.println(beanParam.getMyHeader());
     }
 }

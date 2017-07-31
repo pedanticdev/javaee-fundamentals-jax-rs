@@ -22,6 +22,7 @@ public class EmployeesResource {
     private QueryService queryService;
     @Inject
     private PersistenceService persistenceService;
+
     @Context
     private UriInfo uriInfo;
 

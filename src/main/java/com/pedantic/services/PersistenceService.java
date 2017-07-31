@@ -29,4 +29,10 @@ public class PersistenceService {
         }
     }
 
+    public void deleteDepartment(Department department) {
+//        entityManager.remove(department);
+        System.out.println("Department " + department.getName() + " deleted successfully");
+
+    }
+
 }

@@ -22,6 +22,13 @@ public class Department implements Serializable {
 
     private String name;
 
+    public Department(String name) {
+        this.name = name;
+    }
+
+    public Department() {
+    }
+
     @ManyToOne
     private Department department;
 

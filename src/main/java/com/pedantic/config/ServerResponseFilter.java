@@ -7,7 +7,7 @@ import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 
-@Provider
+//@Provider
 public class ServerResponseFilter implements ContainerResponseFilter {
     @Override
     public void filter(ContainerRequestContext reqCtx, ContainerResponseContext resCtx) throws IOException {
