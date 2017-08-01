@@ -1,6 +1,6 @@
 package com.pedantic.resource;
 
-import com.pedantic.config.MaxAge;
+import com.pedantic.config.Secure;
 import com.pedantic.entities.Department;
 import com.pedantic.services.PersistenceService;
 import com.pedantic.services.QueryService;
@@ -46,9 +46,9 @@ public class DepartmentResource {
     }
 
 
-
     @GET
-    @MaxAge(value = 3600)
+//    @MaxAge(value = 3600)
+    @Secure
     public List<Department> getDepartments() {
         List<Department> departments = new ArrayList<>();
         departments.add(new Department("Finance and Admin"));

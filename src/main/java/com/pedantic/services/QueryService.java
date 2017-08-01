@@ -2,6 +2,7 @@ package com.pedantic.services;
 
 import com.pedantic.entities.Department;
 import com.pedantic.entities.Employee;
+import com.pedantic.entities.User;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -12,6 +13,8 @@ import java.util.List;
 public class QueryService {
     @Inject
     private EntityManager entityManager;
+    @Inject
+    private SecurityUtil securityUtil;
 
 
     public Employee getEmployeeById(Long id) {
@@ -29,4 +32,17 @@ public class QueryService {
     public List<Department> getDepartments() {
         return entityManager.createNamedQuery(Department.FIND_ALL_DEPARTMENTS, Department.class).getResultList();
     }
+    public User findUserByEmail(String email) {
+        return entityManager.createNamedQuery(User.FIND_BY_EMAIL, User.class).setParameter("email", email).getSingleResult();
+    }
+
+    public User findUserByCredentials(String email, String plainTextPassword) {
+        return entityManager.createNamedQuery(User.FIND_BY_CREDENTIALS, User.class).setParameter("email", email)
+                .setParameter("password", securityUtil.encodeText(plainTextPassword)).getSingleResult();
+    }
+
+    public User findUserById(Long id) {
+        return entityManager.find(User.class, id);
+    }
+
 }
