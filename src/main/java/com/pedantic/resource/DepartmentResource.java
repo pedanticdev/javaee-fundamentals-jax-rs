@@ -15,7 +15,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Path("departments")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -45,10 +44,10 @@ public class DepartmentResource {
         return Response.noContent().build();
     }
 
-
     @GET
 //    @MaxAge(value = 3600)
-    @Secure
+//    @Secure
+    @Produces({"application/xml; qs=0.75", "application/json; qs=1.0"})
     public List<Department> getDepartments() {
         List<Department> departments = new ArrayList<>();
         departments.add(new Department("Finance and Admin"));

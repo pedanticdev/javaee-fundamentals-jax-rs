@@ -1,16 +1,18 @@
 package com.pedantic.resource;
 
 import com.pedantic.entities.Employee;
-import com.pedantic.entities.EmployeeBeanParam;
 import com.pedantic.services.PersistenceService;
 import com.pedantic.services.QueryService;
-import java.math.BigDecimal;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.io.*;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Path("/employees")
@@ -34,6 +36,7 @@ public class EmployeesResource {
 
         return queryService.getEmployees();
     }
+
     @POST
     public Response saveEmployee(@Valid Employee employee) {
         persistenceService.saveEmployee(employee);
@@ -45,8 +48,10 @@ public class EmployeesResource {
                 cookie(cookie).cookie(cookie1).build();
     }
 
+    //Server content negotiation
     @GET
     @Path("/find/{id}")
+    @Produces({"application/xml; qs=0.75", "application/json; qs=1.0"})
     public Response getEmployeesResponse(@PathParam("id") Long id) {
         Employee employee = queryService.getEmployeeById(id);
         if (employee == null) {
@@ -62,12 +67,51 @@ public class EmployeesResource {
 //
 //        return Response.ok().entity(employee).build();
 //    }
-
     @GET
     @Path("{id}")
     public Employee getEmployeeById(@PathParam("id") Long id) {
         return queryService.getEmployeeById(id);
     }
 
-   
+    //Accepting other input types apart from Json or xml
+    @POST
+    @Path("pic")
+    @Consumes({MediaType.APPLICATION_OCTET_STREAM, "image/png", "image/jpg"})
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response postEmployeePicture(File picture, @QueryParam("id") @NotNull Long id) {
+
+        //Associate the file with the selected employee and perhaps do something with it. Like DB storage
+        Employee employee = queryService.getEmployeeById(id);
+
+        try (Reader reader = new FileReader(picture)) {
+
+            employee.setPicture(Files.readAllBytes(Paths.get(picture.toURI())));
+            persistenceService.saveEmployee(employee);
+
+            int totalsize = 0;
+            int count = 0;
+            final char[] buffer = new char[256];
+            while ((count = reader.read(buffer)) != -1) {
+                totalsize += count;
+            }
+            return Response.ok(totalsize).build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Response.serverError().build();
+        }
+    }
+
+    //Producing other output types apart from json or xml
+    @GET
+    @Path("employee-pic")
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, "image/png", "image/jpg"})
+    public Response getEmployeePicture(@QueryParam("id") @NotNull Long id) throws Exception {
+        Employee employee = queryService.getEmployeeById(id);
+        if (employee != null) {
+            return Response.ok().entity(Files.write(Paths.get("pic.png"), employee.getPicture()).toFile()).build();
+        }
+
+        return Response.noContent().build();
+    }
+
 }

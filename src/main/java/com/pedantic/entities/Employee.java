@@ -31,8 +31,19 @@ public class Employee implements Serializable {
     @Size(min = 10, max = 10, message = "Social security number must be 10 characters long")
     private String ssn;
 
+    @Lob
+    private byte[] picture;
+
     @ManyToOne
     private Department department;
+
+    public byte[] getPicture() {
+        return picture;
+    }
+
+    public void setPicture(byte[] picture) {
+        this.picture = picture;
+    }
 
     public Long getId() {
         return id;
