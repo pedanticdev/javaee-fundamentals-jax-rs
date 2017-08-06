@@ -1,5 +1,8 @@
 package com.pedantic.resource;
 
+import com.pedantic.entities.PawnedDomains;
+
+import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -12,43 +15,58 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.StringReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Path("client")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class JaxRSClientResource {
 
+    @Inject
+    private PawnedDomains pawnedDomains;
+    @Inject
+    private Logger logger;
     private final Client CLIENT = ClientBuilder.newClient();
     private static final String HAVE_I_BEEN_PAWNED_API = "https://haveibeenpwned.com/api/v2/breachedaccount/{account}";
 
     @GET
     @Path("pawned")
-    public Response haveIbeenPawned(@QueryParam("account") @NotNull String account) {
-        System.out.println(account);
+    public Response haveIBeenPawned(@QueryParam("account") @NotNull String account) {
 
         WebTarget target = CLIENT.target(HAVE_I_BEEN_PAWNED_API).resolveTemplate("account", account);
 
         String response = target.request(MediaType.APPLICATION_JSON).get(String.class);
 
-        System.out.println(target.getUri().toString());
-
         if (response != null) {
-            System.out.println(response);
+            logger.log(Level.INFO, response);
 
             JsonReader reader = Json.createReader(new StringReader(response));
             JsonArray jsonArray = reader.readArray();
 
-            System.out.println(jsonArray.size());
-            JsonObject jsonObject = jsonArray.getJsonObject(0);
+            logger.log(Level.INFO, "Returned json array has a size of {0}", jsonArray.size());
+            for (int i = 0; i < jsonArray.size(); i++) {
 
-            System.out.println(jsonObject.toString());
+                String domain = jsonArray.getJsonObject(i).getString("Domain");
+                System.out.println(domain);
+
+                pawnedDomains.getPawnedDomains().add(domain);
+
+
+                JsonObject jsonObject = jsonArray.getJsonObject(i);
+
+                logger.log(Level.INFO, jsonObject.toString());
+            }
+
 
             CLIENT.close();
-            return Response.ok().build();
+            return Response.ok(pawnedDomains).build();
 
         }
 
         CLIENT.close();
+        logger.log(Level.SEVERE, "No response returned");
+
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 }
