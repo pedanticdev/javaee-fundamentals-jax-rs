@@ -1,6 +1,5 @@
 package com.pedantic.resource;
 
-import com.pedantic.config.Secure;
 import com.pedantic.entities.Department;
 import com.pedantic.services.PersistenceService;
 import com.pedantic.services.QueryService;
