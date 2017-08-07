@@ -10,6 +10,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,5 +45,22 @@ public class PayrollResource {
             }
         });
 
+    }
+
+    @Path("process1")
+    @POST
+    public CompletionStage<Response> processPayroll() {
+        CompletableFuture<Response> completableFuture = new CompletableFuture<>();
+        managedExecutorService.submit(()->{
+            try {
+                //Simulate a long running task
+                Thread.sleep(10000);
+                Response response = Response.ok("Payroll run successfully").build();
+                completableFuture.complete(response);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        return completableFuture;
     }
 }
