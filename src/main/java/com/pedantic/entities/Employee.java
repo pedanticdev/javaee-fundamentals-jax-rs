@@ -23,10 +23,12 @@ public class Employee implements Serializable {
     private Long version;
 
     @NotNull(message = "Employee name cannot be left empty")
-    @Size(min = 3, max = 20, message = "Employee name must be between 3 and 20 characters")
+    @Size(min = 3, max = 50, message = "Employee name must be between 3 and 50 characters")
     private String name;
+
     @NotNull(message = "Salary cannot be left empty")
     private BigDecimal salary;
+
     @NotNull
     @Size(min = 10, max = 10, message = "Social security number must be 10 characters long")
     private String ssn;

@@ -1,16 +1,17 @@
 package com.pedantic.resource;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.sse.OutboundSseEvent;
 import javax.ws.rs.sse.Sse;
+import javax.ws.rs.sse.SseBroadcaster;
 import javax.ws.rs.sse.SseEventSink;
 import java.time.LocalDateTime;
 import java.util.logging.Level;
@@ -19,52 +20,51 @@ import java.util.logging.Logger;
 @Path("sse")
 public class ServerSentEventResource {
 
-    @Resource
-    private ManagedExecutorService managedExecutorService;
+    @Context
+    private Sse sse;
     @Inject
     private Logger logger;
+    private SseBroadcaster sseBroadcaster;
+    private SseEventSink eventSink;
 
+    @PostConstruct
+    private void init() {
+        sseBroadcaster = sse.newBroadcaster();
+    }
 
-
-
-
-    @Path("fetch")
     @GET
-    @Produces("text/event-stream")
-    public void fetch(@Context Sse sse, @Context SseEventSink eSink) {
-        OutboundSseEvent event = sse.newEvent("one-time-event", LocalDateTime.now().toString());
-        eSink.send(event);
-        System.out.println("event sent");
-        eSink.close();
-        System.out.println("sink closed");
+    @Produces(MediaType.SERVER_SENT_EVENTS)
+    public void fetch(@Context SseEventSink sseEventSink) {
+        sseBroadcaster.register(sseEventSink);
+        this.eventSink = sseEventSink;
+
+        logger.log(Level.INFO,"SSE opened!" );
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response broadcast(@FormParam("message") String message) {
+        OutboundSseEvent broadcastEvent = sse.newEvent(message);
+        sseBroadcaster.broadcast(broadcastEvent);
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response broadcastEmployee(String employee) {
+        OutboundSseEvent broadcastEvent = sse.newEventBuilder().name("employee").data(employee).
+                mediaType(MediaType.TEXT_PLAIN_TYPE).build();
+
+        sseBroadcaster.broadcast(broadcastEvent);
+        return Response.ok().status(Response.Status.OK).build();
     }
 
 
+    @PreDestroy
+    private void destroy() {
+        if (eventSink != null) {
+            eventSink.close();
 
-    @GET
-    @Path("domains/{id}")
-    @Produces(MediaType.SERVER_SENT_EVENTS)
-    public void startDomain(@PathParam("id") final String id, @Context SseEventSink domainSink, @Context Sse sse) {
-        managedExecutorService.execute(() -> {
-            try {
-                domainSink.send(sse.newEventBuilder()
-                        .name("domain-progress")
-                        .data(String.class, "starting domain " + id + " ...")
-                        .build());
-                Thread.sleep(5000);
-                domainSink.send(sse.newEventBuilder().name("domain-progress").data(String.class, "50%").build());
-                Thread.sleep(200);
-                domainSink.send(sse.newEventBuilder().name("domain-progress").data(String.class, "60%").build());
-                Thread.sleep(2000);
-                domainSink.send(sse.newEventBuilder().name("domain-progress").data(String.class, "70%").build());
-                Thread.sleep(200);
-                domainSink.send(sse.newEventBuilder().name("domain-progress").data(String.class, "99%").build());
-                Thread.sleep(1000);
-                domainSink.send(sse.newEventBuilder().name("domain-progress").data(String.class, "done").build());
-                domainSink.close();
-            } catch (InterruptedException i) {
-                logger.log(Level.SEVERE, null, i);
-            }
-        });
+        }
     }
 }

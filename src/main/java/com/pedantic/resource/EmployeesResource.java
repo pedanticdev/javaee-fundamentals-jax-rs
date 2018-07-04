@@ -5,6 +5,8 @@ import com.pedantic.services.PersistenceService;
 import com.pedantic.services.QueryService;
 
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -15,10 +17,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-@Path("/employees")
+@Path("employees")
 @Produces("application/json")
 @Consumes("application/json")
 public class EmployeesResource {
+
+    @Inject
+    private JaxrsClient jaxrsClient;
 
     @Inject
     private QueryService queryService;
@@ -31,7 +36,7 @@ public class EmployeesResource {
     @Context
     private HttpHeaders httpHeaders;
 
-    @GET
+    @GET //http://localhost:8080/jax-rs/api/v1/employees -GET
     public List<Employee> getEmployees() {
 
         return queryService.getEmployees();
@@ -40,12 +45,25 @@ public class EmployeesResource {
     @POST
     public Response saveEmployee(@Valid Employee employee) {
         persistenceService.saveEmployee(employee);
+//        jaxrsClient.postEmployeeToSSE(employee);
 
-        NewCookie cookie = new NewCookie("employeeId", employee.getId().toString());
-        NewCookie cookie1 = new NewCookie("employeeName", employee.getName());
+//        NewCookie cookie = new NewCookie("employeeId", employee.getId().toString());
+//        NewCookie cookie1 = new NewCookie("employeeName", employee.getName());
 
-        return Response.created(URI.create(uriInfo.getAbsolutePath() + "/" + employee.getId())).
-                cookie(cookie).cookie(cookie1).build();
+
+        URI uri = uriInfo.getAbsolutePathBuilder().path(employee.getId().toString()).build();
+
+        URI others = uriInfo.getBaseUriBuilder().path(EmployeesResource.class).build();
+
+//        URI dept = uriInfo.getBaseUriBuilder().path(DepartmentResource.class).path(DepartmentResource.class, "getDepartmentById")
+//                .resolveTemplate("id", employee.getDepartment().getId()).build();
+
+        JsonObjectBuilder links = Json.createObjectBuilder().add("_links", Json.createArrayBuilder().add(Json.createObjectBuilder().add("_others", others.toString())
+                .add("_self", uri.toString()).build()
+        ));
+
+
+        return Response.ok(links.build().toString()).status(Response.Status.CREATED).build();
     }
 
     //Server content negotiation
